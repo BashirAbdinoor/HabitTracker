@@ -1,4 +1,4 @@
-import { menuItemType } from "./menuItemType";
+import { HabitType, menuItemType } from "./globalType";
 import { Dispatch, SetStateAction } from "react";
 
 export type GlobalContextType = {
@@ -18,5 +18,48 @@ export type GlobalContextType = {
     openHabitWindow: boolean;
     setOpenHabitWindow: Dispatch<SetStateAction<boolean>>;
   };
+  openTimePickerObject: {
+    openTimePickerWindow: boolean;
+    setOpenTimePickerWindow: Dispatch<SetStateAction<boolean>>;
+  };
+  allHabitsObject: {
+    allHabits:  HabitType[];
+    setAllHabits: Dispatch<SetStateAction<HabitType[]>>;
+  };
+  selectedCurrentDayObject: {
+    selectedCurrentDate: string;
+    setSelectedCurrentDate: Dispatch<SetStateAction<string>>;
+  };
+  offsetDayObject: {
+    offsetDay: number;
+    setOffsetDay: Dispatch<SetStateAction<number>>;
+  };
+  dropDownObject: {
+    openDropDown: boolean;
+    setOpenDropDown: Dispatch<SetStateAction<boolean>>;
+  };
+  dropDownPositionObject : {
+    dropDownPosition: {
+      top:number,
+      left: number,
+    };
+    setDropDownPosition: Dispatch<SetStateAction<{top: number, left: number}>>;
+  },
+  openConfirmationWindowObject: {
+    openConfirmationWindow: boolean;
+    setOpenConfirmationWindow: Dispatch<SetStateAction<boolean>>;
+  }, 
+  singleHabitItemObject: {
+    singleHabitItem: HabitType;
+    setSingleHabitItem: Dispatch<SetStateAction<HabitType>>;
+  },
+  clickedHabitIDObject: {
+    clickedHabitID: string | null;
+    setClickedHabitID: Dispatch<SetStateAction<string | null>>;
+  },
+  openEditWindowObject: {
+    openEditWindow: boolean;
+    setOpenEditWindow: Dispatch<SetStateAction<boolean>>;
+  }
 
 };

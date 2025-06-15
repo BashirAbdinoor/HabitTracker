@@ -1,6 +1,7 @@
-//dropDown menu is all over the board.
-//if you touch edit and change your mind.
-//once you edit a habit & add a new habit.
+//dropDown menu is all over the board. done
+//if you touch edit and change your mind. done
+//Day options has to be same as the old version.
+//make sure no other changes are made
 
 "use client"
 
@@ -9,19 +10,19 @@ import { darkModeColor, defaultColor } from "@/colors";
 import { faChevronDown, faClose, faStairs } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { memo, useEffect, useState, useRef } from "react";
-import IconsWindow from "./IconsWindow/IconsWindow";
+import IconsWindow from "@/app/pages/AllHabits/components/IconsWindow/IconsWindow";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { addNewHabit } from "@/utils/allHabitsUtils/addNewHabit";
 import toast from "react-hot-toast";
 import { daysOption, HabitType } from "@/app/types/globalType";
+import { editHabit } from "./editHabit";
 
 
 
 
 
-function HabitWindow() {
-    const { habitWindowObject, darkModeObject, singleHabitItemObject } = useGlobalContextProvider();
-    const { openHabitWindow } = habitWindowObject;
+function EditWindow() {
+    const { openEditWindowObject, darkModeObject, singleHabitItemObject } = useGlobalContextProvider();
+    const { openEditWindow } = openEditWindowObject;
     const { isDarkMode } = darkModeObject;
     const {singleHabitItem, setSingleHabitItem} = singleHabitItemObject;
 
@@ -38,18 +39,15 @@ function HabitWindow() {
             name: inputText,
         }));
     };
-    const generateRandomStrings = [...Array(8)].map(() =>
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 62)]
-    ).join('');
+    
 
 
     useEffect(() => {
         setSingleHabitItem((prevHabitItem) => ({
             ...prevHabitItem,
-            icon: iconSelected,
-            _id: generateRandomStrings
+            icon: iconSelected
         }));
-    }, [iconSelected, openHabitWindow]);
+    }, [iconSelected, openEditWindow]);
 
     function changeDaysOption(allDays: daysOption) {
         setSingleHabitItem((prevState) => ({ 
@@ -64,7 +62,7 @@ function HabitWindow() {
                 color: isDarkMode ? darkModeColor.textColor : defaultColor.textColor,
                 backgroundColor: isDarkMode ? darkModeColor.background : defaultColor.background,
             }}
-            className={`absolute left-[40%] transform -translate-x-1/2 w-[80%] z-50 p-10 rounded-md shadow-md mt-6 ${openHabitWindow ? "block" : "hidden"}`}
+            className={`absolute left-[40%] transform -translate-x-1/2 w-[80%] z-50 p-10 rounded-md shadow-md mt-6 ${openEditWindow ? "block" : "hidden"}`}
         >
             <IconsWindow
                 openIconWindow={openIconWindow}
@@ -89,17 +87,17 @@ function HabitWindow() {
     );
 }
 
-export default HabitWindow;
+export default EditWindow;
 
 const Header = () => {
-    const { habitWindowObject } = useGlobalContextProvider();
-    const { setOpenHabitWindow } = habitWindowObject;
+    const { openEditWindowObject } = useGlobalContextProvider();
+    const { setOpenEditWindow } = openEditWindowObject;
 
     return (
         <div className="flex justify-between items-center">
-            <span className="font-bold text-xl">Add New Habit</span>
+            <span className="font-bold text-xl">Edit a Habit</span>
             <FontAwesomeIcon
-                onClick={() => setOpenHabitWindow(false)}
+                onClick={() => setOpenEditWindow(false)}
                 className="text-grey-400 cursor-pointer"
                 icon={faClose}
             />
@@ -120,8 +118,8 @@ const InputNameAndIconButton = memo(
         iconSelected: IconProp;
     }) => {
         const inputRef = useRef<HTMLInputElement>(null);
-        const { habitWindowObject, darkModeObject, singleHabitItemObject } = useGlobalContextProvider();
-        const { openHabitWindow } = habitWindowObject;
+        const { openEditWindowObject, darkModeObject, singleHabitItemObject } = useGlobalContextProvider();
+        const { openEditWindow } = openEditWindowObject;
         const { isDarkMode } = darkModeObject;
         const {singleHabitItem} = singleHabitItemObject;
 
@@ -134,10 +132,10 @@ const InputNameAndIconButton = memo(
                 inputRef.current?.focus();
             }, 500);
 
-            if (!openHabitWindow) {
+            if (!openEditWindow) {
                 onUpdateHabitName(singleHabitItem.name); // Clear input field when the window is closed
             }
-        }, [openHabitWindow]);
+        }, [openEditWindow]);
 
         return (
             <div className="flex flex-col gap-2 mt-10 px-3">
@@ -247,22 +245,27 @@ const DailyOptions = memo(
 );
 
 const SaveButton = memo(({ Habit }: { Habit: HabitType }) => { 
-    const { allHabitsObject, habitWindowObject, singleHabitItemObject } = useGlobalContextProvider();
-    const { setOpenHabitWindow } = habitWindowObject;
+    const { allHabitsObject, openEditWindowObject, singleHabitItemObject, clickedHabitIDObject } = useGlobalContextProvider();
+    const { setOpenEditWindow } = openEditWindowObject;
     const { allHabits, setAllHabits } = allHabitsObject;
     const {singleHabitItem, setSingleHabitItem} = singleHabitItemObject;
-
+    const {clickedHabitID} = clickedHabitIDObject;
     
 
     function checkNewHabitobject() {
-
+        const updatedHabits = allHabits.filter(habit => (habit._id != clickedHabitID));
+        
+        
+        
         if (Habit.name.trim() === "") {
             return toast.error("The name field is still empty");
         }
-        const habitExist = allHabits.some((singleHabit) => singleHabit.name === Habit.name);
+        const habitExist = updatedHabits.some((singleHabit) => singleHabit.name === Habit.name);
         if (!habitExist) {
-            addNewHabit({ allHabits, setAllHabits, newHabit: Habit });
-            setOpenHabitWindow(false);
+            // Perform any side effects with the updated state
+            editHabit({ allHabits: updatedHabits, setAllHabits, habit: Habit });
+
+            setOpenEditWindow(false);
             
         } else {
             return toast.error("Habit Already Exists");
@@ -275,7 +278,7 @@ const SaveButton = memo(({ Habit }: { Habit: HabitType }) => {
                 onClick={checkNewHabitobject}
                 className="bg-primary p-4 w-[98%] rounded-md text-white"
             >
-                Add a Habit
+                Edit a Habit
             </button>
         </div>
     );

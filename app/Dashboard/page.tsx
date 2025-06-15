@@ -1,37 +1,34 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
 import Sidebar from "../Components/sideBar/sidebar";
 import { useGlobalContextProvider } from "../types/contextAPI";
-import { menuItemType } from "../types/menuItemType";
+import { menuItemType } from "../types/globalType";
 import AllHabits from "../pages/AllHabits/Allhabits";
-import Stats from "../pages/Stats/Stats";
-import Areas from "../pages/Areas/Areas";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { defaultColor, darkModeColor } from "@/colors";
+import StatisticTopBar from "../pages/Stats/components.tsx/stats";
 
 function Dashboard() {
   // Access context values for state management
-  const { menuItemsObject, darkModeObject } = useGlobalContextProvider();
+  const { menuItemsObject, darkModeObject, allHabitsObject } = useGlobalContextProvider();
   const { menuItems } = menuItemsObject;
   const { isDarkMode } = darkModeObject;
+  const { allHabits } = allHabitsObject;
 
-  // Debugging log to check darkMode state
-  // console.log(isDarkMode, "Dashboard");
+  useEffect(() => {
+    console.log("Updated Habits State:", allHabits);
+  }, [isDarkMode]);
 
   // State to manage the selected menu item
   const [selectedMenu, setSelectedMenu] = useState<menuItemType | null>(null);
 
-  // Effect hook to update the selected menu when the menu items change
   useEffect(() => {
     const selected = menuItems.find((item) => item.isSelected);
-    console.log(selected, "Dashboard")
-    console.log(isDarkMode)
-    setSelectedMenu(selected || null); // Only update if we found a selected item
-  }, [menuItems, isDarkMode]);  // Re-run the effect when menuItems change
+    console.log(selected, "Dashboard");
+    console.log(isDarkMode);
+    setSelectedMenu(selected || null);
+  }, [menuItems, isDarkMode]);
 
-  // Default selected component (fallback)
   let selectComponent = null;
 
   switch (selectedMenu?.name) {
@@ -39,31 +36,48 @@ function Dashboard() {
       selectComponent = <AllHabits />;
       break;
     case "Statistics":
-      selectComponent = <Stats />;
-      break;
-    case "Areas":
-      selectComponent = <Areas />;
+      selectComponent = <StatisticTopBar />;
       break;
     default:
       selectComponent = <AllHabits />;
   }
 
-  // Render the dashboard with conditional styles and components based on dark mode
+  const { openSideBarObject } = useGlobalContextProvider();
+  const { openSideBar } = openSideBarObject;
+
   return (
     <div
       style={{
         backgroundColor: isDarkMode ? darkModeColor.backgroundSlate : defaultColor.backgroundSlate,
+        display: "flex",
+        flexDirection: "row",
+        transition: "all 0.3s ease",
       }}
-      className="flex"
+      className="h-full w-full"
     >
       <LocalizationProvider dateAdapter={AdapterDayjs}>
+        {/* Sidebar */}
         <Sidebar />
-        {selectComponent}
+        {/* Main content area */}
+        <div
+          style={{
+            flex: openSideBar ? "0 0 80%" : "1", // Adjust size when sidebar is open
+            transition: "flex 0.3s ease",
+            padding: "16px",
+            backgroundColor: isDarkMode ? darkModeColor.background : "white",
+            height: "100vh",
+            overflowY: "auto",
+          }}
+          className="flex-1"
+        >
+          {selectComponent}
+        </div>
         <BlackSoftLayer />
       </LocalizationProvider>
     </div>
   );
 }
+
 export default Dashboard;
 
 // BlackSoftLayer component to show an overlay when sidebar is open

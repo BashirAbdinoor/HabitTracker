@@ -1,6 +1,6 @@
 import React from "react";
 import { useGlobalContextProvider } from "@/app/types/contextAPI";
-import { menuItemType } from "@/app/types/menuItemType";
+import { menuItemType } from "@/app/types/globalType";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 // Component for the entire menu selection

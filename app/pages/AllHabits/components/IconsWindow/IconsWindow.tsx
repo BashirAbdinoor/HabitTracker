@@ -22,7 +22,6 @@ setIconSelected: React.Dispatch<React.SetStateAction<IconProp>>;
     const [allIcons, setAllIcons] = useState(iconsData);
     const {darkModeObject} = useGlobalContextProvider();
     const {isDarkMode} = darkModeObject;
-    console.log(openIconWindow)
 
     return (
         <div 

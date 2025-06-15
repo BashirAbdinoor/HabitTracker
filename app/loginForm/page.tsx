@@ -6,6 +6,8 @@ import { addUser, loginUser } from '@/actions/action'; // Import actions
 import EmailInput from './EmailInput/emailInput'; // Import EmailInput
 import PasswordInput from './PasswordInput/passwordInput'; // Import PasswordInput
 import './loginForm.css'; // Import CSS for styling
+import { useGlobalContextProvider } from '../types/contextAPI';
+import { textToIcon } from '../pages/AllHabits/components/IconsWindow/IconData';
 
 const LoginForm = () => {
     const [email, setEmail] = useState('');
@@ -13,8 +15,56 @@ const LoginForm = () => {
     const [confirmPassword, setConfirmPassword] = useState(''); // State for repeated password
     const [isSignUp, setIsSignUp] = useState(false); // Toggle between Sign Up and Sign In
     const [error, setError] = useState(''); // To handle error messages
+    const [isAuthenticated, setIsAuthenticated] = useState(false); // New state to track if user is authenticated
     const searchParams = useSearchParams(); // Get query parameters from the URL
 
+    const { allHabitsObject } = useGlobalContextProvider();
+    const { allHabits, setAllHabits } = allHabitsObject;
+
+    // Fetch habits when authenticated
+    useEffect(() => {
+        if (isAuthenticated) {
+            const fetchHabits = async () => {
+                try {
+                    // Make a GET request to the /api/habits endpoint
+                    const response = await fetch('/api/habits');
+                    const data = await response.json();
+
+                    // Log response and data for debugging
+                    console.log('API Response:', response);
+                    console.log('Fetched Data:', data);
+                    console.log('Fetched Data habits:', data.habits);
+                    console.log('Current Habits State:', allHabits);
+
+                    const habitsWithIcons = data.habits.map(habit => {
+                        return {
+                            ...habit, // Convert Mongoose document to a plain JavaScript object
+                            icon: textToIcon(habit.icon), // Convert the icon string to an icon
+                        };
+                    });
+
+                    // If the response is OK, update the global state with the fetched habits
+                    if (response.ok) {
+                        setAllHabits(habitsWithIcons);
+                        console.log('Updated Habits State:', allHabits);
+                    } else {
+                        console.error('Error fetching habits:', data.error);
+                    }
+                } catch (error) {
+                    console.error('Error fetching habits:', error);
+                }
+            };
+            // alert("I am here at logingForm fetching habits")
+            fetchHabits(); // Fetch habits once authenticated
+            window.location.href = '/Dashboard'; // Redirect to Dashboard after fetching habits
+        }
+    }, [isAuthenticated, setAllHabits]); // Depend on isAuthenticated to trigger fetching habits
+
+    useEffect(() => {
+        console.log('Updated Habits State:', allHabits);
+    }, [allHabits]); // This will run whenever allHabits is updated
+
+    // Conditionally set sign-up or sign-in form based on query param
     useEffect(() => {
         const view = searchParams.get('view');
         if (view === 'signUp') {
@@ -27,7 +77,6 @@ const LoginForm = () => {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         
-
         // Validate if passwords match when signing up
         if (isSignUp && password !== confirmPassword) {
             setError('Passwords do not match');
@@ -42,20 +91,15 @@ const LoginForm = () => {
                 setEmail('');
                 setPassword('');
                 setConfirmPassword('');
-                // Redirect the user to the dashboard or a protected page
-                window.location.href = '/Dashboard'; // Example redirect after successful login
+                setIsAuthenticated(true); // Mark the user as authenticated after successful sign-up
             } else {
                 // Handle Sign In
                 const { token, user } = await loginUser(email, password);
                 alert('Logged in successfully!');
-                // Store token for user session (e.g., in localStorage or cookies)
-                localStorage.setItem('userToken', token);
+                localStorage.setItem('userToken', token); // Store token for user session
                 console.log('JWT Token:', token);
-                // Redirect the user to the dashboard or a protected page
-                window.location.href = '/Dashboard'; // Example redirect after successful login
+                setIsAuthenticated(true); // Mark the user as authenticated after successful login
             }
-            
-            
         } catch (err: any) {
             setError(err.message || 'Something went wrong');
         }

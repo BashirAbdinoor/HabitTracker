@@ -2,10 +2,25 @@ import React from "react";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { useGlobalContextProvider } from "@/app/types/contextAPI";
 import { defaultColor, darkModeColor } from "@/colors";
+import dayjs, { Dayjs } from "dayjs";
 
 function Calendar() {
-  const { darkModeObject } = useGlobalContextProvider();    
+  const { darkModeObject, selectedCurrentDayObject, offsetDayObject } = useGlobalContextProvider();    
   const { isDarkMode } = darkModeObject;
+  const {selectedCurrentDate, setSelectedCurrentDate} = selectedCurrentDayObject;
+  const {offsetDay, setOffsetDay} = offsetDayObject;
+
+  const value: Dayjs | null = selectedCurrentDate ? dayjs(selectedCurrentDate) : null;
+
+  function handleOnchangeDate(newDate: Dayjs){
+    const jsDate = newDate.toDate();
+    const currentDate = new Date()
+    
+    const differenceinMS = jsDate.getTime() - currentDate.getTime(); //Difference in millisecond
+    const differenceInDays = differenceinMS / (1000 * 3600 * 24) //difference in days
+
+    setOffsetDay(Math.floor(differenceInDays+1))
+  }
 
   return (
     <div 
@@ -16,6 +31,8 @@ function Calendar() {
       className="flex mx-4 flex-col gap-6 justify-center items-center mt-10 bg-slate-50 rounded-xl p-5 pt-7"
     >
       <DateCalendar
+        onChange={handleOnchangeDate}
+        value={value}
         sx={{
           // Style for the days of the month (each day number)
           "& .MuiPickersDay-root": {
