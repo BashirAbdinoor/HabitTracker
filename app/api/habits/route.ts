@@ -79,7 +79,7 @@ export async function PUT(req: any) {
             { new: true }  // Corrected to 'new: true'
         )
 
-        console.log(updatedHabit)
+        // console.log(updatedHabit)
 
         return NextResponse.json({
             message: "Habit has been updated successfully",

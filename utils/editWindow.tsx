@@ -29,9 +29,9 @@ function EditWindow() {
    
 
     const [openIconWindow, setOpenIconWindow] = useState<boolean>(false);
-    const [iconSelected, setIconSelected] = useState<IconProp>(singleHabitItem.icon);
+    const [iconSelected, setIconSelected] = useState<IconProp>(faStairs);
 
-    const [allDays, setAllDays] = useState<daysOption>(singleHabitItem.frequency);
+    const [allDays, setAllDays] = useState<daysOption>([]);
 
     const onUpdateHabitName = (inputText: string) => {
         setSingleHabitItem((prevState) => ({
@@ -39,6 +39,12 @@ function EditWindow() {
             name: inputText,
         }));
     };
+    useEffect(() => {
+        if (openEditWindow && singleHabitItem) {
+            setIconSelected(singleHabitItem.icon);
+            setAllDays(singleHabitItem.frequency);
+        }
+    }, [openEditWindow]);
     
 
 
@@ -263,7 +269,7 @@ const SaveButton = memo(({ Habit }: { Habit: HabitType }) => {
         const habitExist = updatedHabits.some((singleHabit) => singleHabit.name === Habit.name);
         if (!habitExist) {
             // Perform any side effects with the updated state
-            editHabit({ allHabits: updatedHabits, setAllHabits, habit: Habit });
+            editHabit({ allHabits: updatedHabits, setAllHabits, habit: Habit});
 
             setOpenEditWindow(false);
             

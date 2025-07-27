@@ -44,10 +44,9 @@ function Calendar() {
             },
 
             "&.Mui-selected": {
-              backgroundColor: "hsl(var(--primary))",  // Set background for selected days to primary color
-              color: "white", // Text color of selected day
-            //   border: "2px solid hsl(var(--primary))", // Change the border to primary color when selected
-            },
+                backgroundColor: "hsl(var(--primary)) !important",  // Force green color
+                color: "white !important",
+              },
           },
 
           
@@ -67,8 +66,8 @@ function Calendar() {
             color: isDarkMode ? darkModeColor.textColor : defaultColor.textColor, // Toggle text color for year buttons
             backgroundColor: isDarkMode ? darkModeColor.backgroundSlate : defaultColor.backgroundSlate,
             "&.Mui-selected": {
-              color: "white", // Selected year text color
-              backgroundColor: "hsl(var(--primary))", // Set background for selected year button to primary color
+              backgroundColor: "hsl(var(--primary)) !important",
+              color: "white !important",
             },
           },
 

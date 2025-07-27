@@ -28,7 +28,7 @@ function HabitWindow() {
    
 
     const [openIconWindow, setOpenIconWindow] = useState<boolean>(false);
-    const [iconSelected, setIconSelected] = useState<IconProp>(singleHabitItem.icon);
+    const [iconSelected, setIconSelected] = useState<IconProp>(singleHabitItem.icon || faStairs);
 
     const [allDays, setAllDays] = useState<daysOption>(singleHabitItem.frequency);
 
@@ -47,7 +47,9 @@ function HabitWindow() {
         setSingleHabitItem((prevHabitItem) => ({
             ...prevHabitItem,
             icon: iconSelected,
-            _id: generateRandomStrings
+            _id: generateRandomStrings,
+            createdAt: new Date().toISOString(), // Add this
+            updatedAt: new Date().toISOString()
         }));
     }, [iconSelected, openHabitWindow]);
 

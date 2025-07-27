@@ -45,7 +45,7 @@ export const addUser = async (user) => {
 
 // Sign In: Authenticate user by email and password
 export const loginUser = async (email, password) => {
-    console.log(email, password);
+    console.log(email, password, "from action");
     
     // Find the user by email and convert it to a plain object
     const user = await User.findOne({ email }).lean(); // Using .lean() to get a plain object

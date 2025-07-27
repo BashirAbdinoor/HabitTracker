@@ -38,33 +38,51 @@ function HabitCard({ singleHabit }: { singleHabit: HabitType }) {
     setChecked(singleHabit.completedDays.some((day) => day.date === selectedCurrentDate));
   }, [selectedCurrentDate, singleHabit.completedDays]);
 
-  const handleCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const isChecked = event.target.checked;
     setChecked(isChecked);
 
-    // Update the completedDays for the specific habit
+    // Create updated completedDays array
+    const updatedCompletedDays = isChecked
+      ? [...singleHabit.completedDays, { _id: singleHabit._id, date: selectedCurrentDate }]
+      : singleHabit.completedDays.filter(day => day.date !== selectedCurrentDate);
+
+    // Optimistically update local state first
     const updatedHabits = allHabits.map(habit => {
-        if (habit._id === singleHabit._id) {
-            const updatedHabit = {
-                ...habit,
-                completedDays: isChecked
-                    ? [...habit.completedDays, { _id: habit._id, date: selectedCurrentDate }]
-                    : habit.completedDays.filter(day => day.date !== selectedCurrentDate),
-            };
-            return updatedHabit;
-        }
-        return habit;
+      if (habit._id === singleHabit._id) {
+        return {
+          ...habit,
+          completedDays: updatedCompletedDays
+        };
+      }
+      return habit;
     });
-
-    // Find the updated habit
-    const updatedHabit = updatedHabits.find(habit => habit._id === singleHabit._id);
-
-    if (updatedHabit) {
-        // Call the editHabit function to update the database and state
-        await editHabit(allHabits, setAllHabits, updatedHabit);
-    }
     
     setAllHabits(updatedHabits);
+
+    try {
+      // Find the updated habit
+      const updatedHabit = updatedHabits.find(h => h._id === singleHabit._id);
+      
+      if (updatedHabit) {
+        // Call editHabit to update the database
+        await editHabit({
+          allHabits,
+          setAllHabits,
+          habit: {
+            ...updatedHabit,
+            // Ensure we're sending the proper icon format if needed
+            icon: updatedHabit.icon // or iconToText(updatedHabit.icon) if your API expects text
+          }
+        });
+      }
+    } catch (error) {
+      // Revert if the API call fails
+      setAllHabits(allHabits);
+      setChecked(!isChecked);
+      console.error("Failed to update habit:", error);
+      // You might want to show a toast notification here
+    }
   };
 
   const handleOptionsClick = (event: React.MouseEvent) => {

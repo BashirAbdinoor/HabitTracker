@@ -33,9 +33,9 @@ function Sidebar(){
     }}
     ref={sideBarRef}
     className={`${
-      !openSideBar ? "max-xl:hidden": "fixed shadow-lg"
-    } flex-grow z-50 p-10 flex-col bg-white min-h-screen transition-all`}
-    >
+        openSideBar ? "fixed" : "hidden"
+      } xl:relative xl:flex xl:flex-shrink-0 h-full z-50 p-6 flex-col w-64 border-r transition-all`}
+      >
       <LogoAnName/>
       <MenuSelection/>
       {/* <LogOutSection/> */}

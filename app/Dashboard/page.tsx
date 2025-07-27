@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect } from "react";
 import Sidebar from "../Components/sideBar/sidebar";
 import { useGlobalContextProvider } from "../types/contextAPI";

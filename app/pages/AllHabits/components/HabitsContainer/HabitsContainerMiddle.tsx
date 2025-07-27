@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useGlobalContextProvider } from '@/app/types/contextAPI';
 import EmptyPlaceholder from '@/assets/emptyPlaceholder';
 import { getCurrentDayName } from '@/utils/allHabitsUtils/dateFunctions'; 
+import { textToIcon } from '../IconsWindow/IconData';
 
 import HabitCard from "../HabitCard";
 import HabitsCompleted from '@/app/pages/AllHabits/HabitsCompleted';
@@ -13,6 +14,32 @@ export default function HabitsContainerMiddle() {
   const { selectedCurrentDate } = selectedCurrentDayObject;
   const { allHabits, setAllHabits } = allHabitsObject;
   const today = getCurrentDayName(selectedCurrentDate);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchHabits = async () => {
+      try {
+        const response = await fetch('/api/habits');
+        const data = await response.json();
+        
+        if (response.ok) {
+          // NEW: Convert icon strings to proper icons
+          const habitsWithIcons = data.habits.map(habit => ({
+            ...habit,
+            icon: textToIcon(habit.icon) // Convert string to icon
+          }));
+          setAllHabits(habitsWithIcons);
+        } else {
+          console.error('Failed to fetch habits:', data.error);
+        }
+      } catch (error) {
+        console.error('Error fetching habits:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHabits();
+  }, [setAllHabits]);
 
   const [updateState, setUpdateState] = useState(false);
 
@@ -20,18 +47,38 @@ export default function HabitsContainerMiddle() {
     setUpdateState(prevState => !prevState); // Trigger re-render when selectedCurrentDate changes
   }, [selectedCurrentDate, allHabits]);
 
-  const filteredHabits = allHabits.filter((habit) =>
-    habit.frequency.some((day) => day.name === today && day.isSelected)
+  const filteredHabits = allHabits.filter((habit) => {
+  // Convert dates to simple YYYY-MM-DD format for reliable comparison
+  const currentDateStr = selectedCurrentDate.split('T')[0];
+  const createdDateStr = habit.createdAt.split('T')[0];
+  
+  // Compare date strings directly (avoids timezone issues)
+  const isAfterOrSameDay = currentDateStr >= createdDateStr;
+  
+  // Check frequency
+  const isScheduledToday = habit.frequency.some(
+    (day) => day.name === today && day.isSelected
+  );
+  // console.log(currentDateStr, createdDateStr, "Hello")
+  if (loading) {
+    return <div>Loading habits...</div>;
+  }
+  
+  return isAfterOrSameDay && isScheduledToday;
+  });
+
+  // Active habits (not completed for selected date)
+  const activeHabits = filteredHabits.filter(
+    (habit) => !habit.completedDays.some(
+      (day) => day.date.split('T')[0] === selectedCurrentDate.split('T')[0]
+    )
   );
 
-  // Separate active and completed habits
-  const activeHabits = allHabits.filter((habit) =>
-    habit.frequency.some((day) => day.name === today && day.isSelected) && 
-    !habit.completedDays.some((day) => day.date === selectedCurrentDate)
-  );
-
-  const completedHabits = allHabits.filter((habit) =>
-    habit.completedDays.some((day) => day.date === selectedCurrentDate)
+  // Completed habits
+  const completedHabits = filteredHabits.filter(
+    (habit) => habit.completedDays.some(
+      (day) => day.date.split('T')[0] === selectedCurrentDate.split('T')[0]
+    )
   );
 
   return (

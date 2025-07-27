@@ -3,11 +3,17 @@
 //logout button in dashboard
 // can't go the dashboard unless signed in.
 //chose a day to change the habits, say saturday. Then habit can be added or deleted only on saturdays & habit changing date can only be changed on saturday.
-//notification on 8pm or chose another time.
-//YOu can add adhominom todo lists each day0
+//You can add adhominom todo lists each day0
 // Validate Habit (don't add empty habit & don't duplicate habit.) done
 // Habits for somedays show up in everyday. Habits only show up after the day they are created & only the days they are chosen. done
 // fix id of habits.
+// change name at the start why Ali to name of login person.
+//change colors of calendar (blue to green.) done.
+// Habits show from the created day onward. (add createdAt element to habit model.) Done.
+// Completed habits should show at the bottom.
+// Add habit end date.
+// When editing habit (the current values should be from the habit not default values.)
+// Edit the database when the interface is changed.
 
 "use client";
 
