@@ -10,6 +10,8 @@ import DropDown from "@/utils/dropDown";
 import Portal from "@/utils/portal";
 import { HabitType } from "@/app/types/globalType";
 import { editHabit } from "@/utils/editHabit";
+import toast from "react-hot-toast";
+import { iconToText } from "./IconsWindow/IconData";
 
 function HabitCard({ singleHabit }: { singleHabit: HabitType }) {
   const { 
@@ -39,52 +41,48 @@ function HabitCard({ singleHabit }: { singleHabit: HabitType }) {
   }, [selectedCurrentDate, singleHabit.completedDays]);
 
     const handleCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const isChecked = event.target.checked;
-    setChecked(isChecked);
+  const isChecked = event.target.checked;
+  setChecked(isChecked);
 
-    // Create updated completedDays array
-    const updatedCompletedDays = isChecked
-      ? [...singleHabit.completedDays, { _id: singleHabit._id, date: selectedCurrentDate }]
-      : singleHabit.completedDays.filter(day => day.date !== selectedCurrentDate);
+  // Create updated completedDays array with CORRECT structure
+  const updatedCompletedDays = isChecked
+    ? [...singleHabit.completedDays, { date: selectedCurrentDate }] // Remove _id field
+    : singleHabit.completedDays.filter(day => day.date !== selectedCurrentDate);
 
-    // Optimistically update local state first
-    const updatedHabits = allHabits.map(habit => {
-      if (habit._id === singleHabit._id) {
-        return {
-          ...habit,
-          completedDays: updatedCompletedDays
-        };
-      }
-      return habit;
+  // Optimistic update
+  const updatedHabits = allHabits.map(habit => 
+    habit._id === singleHabit._id ? { ...habit, completedDays: updatedCompletedDays } : habit
+  );
+  
+  setAllHabits(updatedHabits);
+
+  try {
+    const response = await fetch(`/api/habits?habitId=${singleHabit._id}`, {
+      method: "PUT",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        name: singleHabit.name,
+        icon: iconToText(singleHabit.icon),
+        frequency: singleHabit.frequency,
+        completedDays: updatedCompletedDays, // Send directly (correct structure)
+      }), // Removed activeDropDown
     });
+
+    const data = await response.json();
     
-    setAllHabits(updatedHabits);
-
-    try {
-      // Find the updated habit
-      const updatedHabit = updatedHabits.find(h => h._id === singleHabit._id);
-      
-      if (updatedHabit) {
-        // Call editHabit to update the database
-        await editHabit({
-          allHabits,
-          setAllHabits,
-          habit: {
-            ...updatedHabit,
-            // Ensure we're sending the proper icon format if needed
-            icon: updatedHabit.icon // or iconToText(updatedHabit.icon) if your API expects text
-          }
-        });
-      }
-    } catch (error) {
-      // Revert if the API call fails
-      setAllHabits(allHabits);
-      setChecked(!isChecked);
-      console.error("Failed to update habit:", error);
-      // You might want to show a toast notification here
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to update habit");
     }
-  };
 
+    toast.success("Habit updated successfully!");
+  } catch (error: any) {
+    console.error("Update failed:", error);
+    // Revert UI state on error
+    setAllHabits(allHabits);
+    setChecked(!isChecked);
+    toast.error(error.message || "Failed to update habit");
+  }
+};
   const handleOptionsClick = (event: React.MouseEvent) => {
     event.stopPropagation();
     

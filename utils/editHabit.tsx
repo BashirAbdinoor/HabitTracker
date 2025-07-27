@@ -35,6 +35,7 @@ export async function editHabit({
         if (!data?.habit?._id) {
             throw new Error("Invalid habit data received");
         }
+        // console.log(data)
 
         setAllHabits([...allHabits, { ...habit, _id: data.habit._id }]);
         toast.success("Habit successfully edited");

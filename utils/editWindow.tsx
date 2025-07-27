@@ -269,6 +269,7 @@ const SaveButton = memo(({ Habit }: { Habit: HabitType }) => {
         const habitExist = updatedHabits.some((singleHabit) => singleHabit.name === Habit.name);
         if (!habitExist) {
             // Perform any side effects with the updated state
+            console.log(Habit, "Just before editing")
             editHabit({ allHabits: updatedHabits, setAllHabits, habit: Habit});
 
             setOpenEditWindow(false);

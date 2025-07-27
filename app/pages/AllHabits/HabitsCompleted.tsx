@@ -8,6 +8,8 @@ import { useGlobalContextProvider } from "@/app/types/contextAPI";
 import { darkModeColor, defaultColor } from "@/colors";
 import { HabitType } from "@/app/types/globalType";  // Assuming you have a HabitType defined
 import Archery from "@/assets/archery";
+import toast from "react-hot-toast";
+import { iconToText } from "./components/IconsWindow/IconData";
 
 interface HabitsCompletedProps {
   completedHabits: HabitType[];  // Ensure this is an array of habit objects
@@ -20,7 +22,7 @@ function HabitsCompleted({ completedHabits, setAllHabits, selectedCurrentDate }:
   const { isDarkMode } = darkModeObject;
   const {allHabits} = allHabitsObject;
 
-  const handleUncheck = (habitToUncheck: HabitType) => {
+  const handleUncheck = async (habitToUncheck: HabitType) => {
     // Remove the completed day from the habit that was unchecked
     const updatedHabit = {
       ...habitToUncheck,
@@ -39,6 +41,31 @@ function HabitsCompleted({ completedHabits, setAllHabits, selectedCurrentDate }:
   
     // Update the global state with the modified habits
     setAllHabits(updatedHabits);
+    try {
+    const response = await fetch(`/api/habits?habitId=${updatedHabit._id}`, {
+      method: "PUT",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        name: updatedHabit.name,
+        icon: iconToText(updatedHabit.icon),
+        frequency: updatedHabit.frequency,
+        completedDays: updatedHabit.completedDays, // Send directly (correct structure)
+      }), // Removed activeDropDown
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to update habit");
+    }
+
+    toast.success("Habit updated successfully!");
+  } catch (error: any) {
+    console.error("Update failed:", error);
+    // Revert UI state on error
+    setAllHabits(allHabits);
+    toast.error(error.message || "Failed to update habit");
+  }
   };
   
 
