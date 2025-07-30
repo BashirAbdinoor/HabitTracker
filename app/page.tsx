@@ -14,7 +14,7 @@
 // Add habit end date.
 // When editing habit (the current values should be from the habit not default values.)
 // Edit the database when the interface is changed.
-
+// Set startDate as currentDate and EndDate as 1 year from currentDate.
 "use client";
 
 import Navbar from "./Components/MainPageComponents/Navbar";

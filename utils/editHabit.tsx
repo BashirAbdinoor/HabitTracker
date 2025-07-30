@@ -22,6 +22,8 @@ export async function editHabit({
                   frequency: habit.frequency, 
                   completedDays: habit.completedDays,
                   activeDropDown: habit.activeDropDown,
+                  startDate: habit.startDate,
+                  endDate: habit.endDate
                  }),
             });
         const data = await response.json();

@@ -34,10 +34,14 @@ const HabitSchema = new Schema({
     type: Boolean,
     required: true,
   },
-  // notification: {
-  //   type: String,
-  //   required: false, // Assuming notification is optional
-  // },
+  startDate: {
+    type: String, 
+    required: true
+  },
+  endDate: {
+    type: String, 
+    required: true
+  }
 }, { timestamps: true });
 
 const HabitsCollection = mongoose.models.HabitsCollection || mongoose.model('HabitsCollection', HabitSchema);

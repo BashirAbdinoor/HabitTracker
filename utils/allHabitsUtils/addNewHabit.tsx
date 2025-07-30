@@ -14,6 +14,7 @@ export async function addNewHabit({
     const { icon } = newHabit;
     const HabitIconToText = iconToText(icon);
     const updatedHabit = { ...newHabit, icon: HabitIconToText };
+    console.log(updatedHabit, "from add NewHabit")
     
 
     try {

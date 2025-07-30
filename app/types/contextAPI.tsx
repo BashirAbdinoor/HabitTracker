@@ -81,8 +81,8 @@ const GlobalContext = createContext<GlobalContextType>({
       ],
       completedDays: [],
       activeDropDown: false,
-      createdAt: new Date().toISOString(), // Add this
-    updatedAt: new Date().toISOString(),
+      startDate: new Date().toISOString().split('T')[0], // Add this
+      endDate: new Date().toISOString().split('T')[0],
   },
     setSingleHabitItem: () => {},
   },
@@ -141,8 +141,8 @@ function GlobalContextProvider({ children }: { children: ReactNode }) {
     ],
     completedDays: [],
     activeDropDown: false,
-    createdAt: new Date().toISOString(), // Add this
-    updatedAt: new Date().toISOString()
+    startDate: new Date().toISOString().split('T')[0], // Add this
+    endDate: new Date().toISOString().split('T')[0],
 });
 
   // State for the sidebar (whether it's open or closed)

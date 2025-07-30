@@ -50,22 +50,19 @@ export default function HabitsContainerMiddle() {
   const filteredHabits = allHabits.filter((habit) => {
   // Convert dates to simple YYYY-MM-DD format for reliable comparison
   const currentDateStr = selectedCurrentDate.split('T')[0];
-  const createdDateStr = habit.createdAt.split('T')[0];
+  const startDateStr = habit.startDate.split('T')[0];
+  const endDateStr = habit.endDate.split('T')[0];
   
-  // Compare date strings directly (avoids timezone issues)
-  const isAfterOrSameDay = currentDateStr >= createdDateStr;
+  // CORRECTED: Check if current date is within range (inclusive)
+  const isInRange = currentDateStr >= startDateStr && currentDateStr <= endDateStr;
   
   // Check frequency
   const isScheduledToday = habit.frequency.some(
     (day) => day.name === today && day.isSelected
   );
-  // console.log(currentDateStr, createdDateStr, "Hello")
-  if (loading) {
-    return <div>Loading habits...</div>;
-  }
   
-  return isAfterOrSameDay && isScheduledToday;
-  });
+  return isInRange && isScheduledToday;
+});
 
   // Active habits (not completed for selected date)
   const activeHabits = filteredHabits.filter(

@@ -6,7 +6,7 @@ import { useGlobalContextProvider } from "@/app/types/contextAPI";
 
 export async function POST(req: Request) {
     try {
-        const { name, icon, frequency, completedDays, activeDropDown } = await req.json();
+        const { name, icon, frequency, completedDays, activeDropDown, startDate, endDate } = await req.json();
 
         await dbConnect();
         
@@ -15,7 +15,9 @@ export async function POST(req: Request) {
             icon,
             frequency,
             completedDays,
-            activeDropDown
+            activeDropDown,
+            startDate, 
+            endDate
         });
         
         const savedHabit = await habit.save();
@@ -62,7 +64,7 @@ export async function DELETE(req: any) {
 export async function PUT(req: any) {
     try {
         const habitId = req.nextUrl.searchParams.get("habitId")
-        const { name, icon, frequency, completedDays, activeDropDown } = await req.json();
+        const { name, icon, frequency, completedDays, activeDropDown, endDate, startDate } = await req.json();
 
         if (!habitId) {
             return NextResponse.json({message: "Habit ID is required"}, {status: 400})
@@ -73,7 +75,7 @@ export async function PUT(req: any) {
             {_id: habitId},
             {
                 $set: {
-                    name, icon, frequency, completedDays, activeDropDown
+                    name, icon, frequency, completedDays, activeDropDown, endDate, startDate
                 },
             },
             { new: true }  // Corrected to 'new: true'

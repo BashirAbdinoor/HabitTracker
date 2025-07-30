@@ -13,8 +13,8 @@ export type HabitType = {
   frequency: daysOption;
   completedDays: DateOption[]
   activeDropDown: boolean;
-  createdAt: string;  // Mark as optional with ?
-  updatedAt: string;
+  startDate: string;  // Mark as optional with ?
+  endDate: string;
   // notification: string;
 };
 
